@@ -117,15 +117,58 @@
       </div>
 
     </div>
+
+    <!-- Fluxo de Caixa Mensal -->
+    <div class="cashflow-section">
+      <div class="chart-card chart-card--line">
+        <div class="chart-card__header">
+          <span class="material-symbols-outlined chart-icon">show_chart</span>
+          <div class="chart-card__header-text">
+            <h2 class="chart-card__title">Fluxo de Caixa Mensal</h2>
+            <p class="chart-card__sub">Receitas e despesas por mês</p>
+          </div>
+          <div class="bar-mode-switch">
+            <button
+              v-for="opt in PERIOD_OPTIONS"
+              :key="opt.value"
+              class="mode-btn"
+              :class="{ 'mode-btn--active': cashFlowPeriod === opt.value }"
+              @click="cashFlowPeriod = opt.value"
+            >{{ opt.label }}</button>
+          </div>
+        </div>
+
+        <div v-if="cashFlowLoading" class="chart-skeleton chart-skeleton--bar">
+          <div class="bar-skeleton-row" v-for="i in 4" :key="i">
+            <Skeleton height="1rem" width="5rem" />
+            <Skeleton height="6rem" width="100%" />
+          </div>
+        </div>
+
+        <div v-else-if="cashFlow.length === 0" class="chart-empty">
+          <span class="material-symbols-outlined empty-icon">show_chart</span>
+          <p>Nenhuma transação encontrada para o período.</p>
+        </div>
+
+        <Chart
+          v-else
+          type="line"
+          :data="lineData"
+          :options="lineOptions"
+          class="line-chart"
+        />
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import Chart from 'primevue/chart'
 import Skeleton from 'primevue/skeleton'
 import { dashboardService } from '@/services/dashboard.service'
-import type { CategoryExpenseDto, CycleBudgetDto } from '@/types/dashboard'
+import type { CategoryExpenseDto, CashFlowPeriod, CycleBudgetDto, MonthlyCashFlowDto } from '@/types/dashboard'
 
 type BarMode = 'EXPENSE' | 'INCOME'
 
@@ -144,6 +187,28 @@ const cyclesLoading = ref(false)
 const cycles = ref<CycleBudgetDto[]>([])
 const barMode = ref<BarMode>('EXPENSE')
 const showBarTooltip = ref(false)
+
+// --- Line chart state ---
+const cashFlowPeriod = ref<CashFlowPeriod>('TWELVE_MONTHS')
+const cashFlow = ref<MonthlyCashFlowDto[]>([])
+const cashFlowLoading = ref(false)
+
+const PERIOD_OPTIONS: { label: string; value: CashFlowPeriod }[] = [
+  { label: '3M',  value: 'THREE_MONTHS' },
+  { label: '6M',  value: 'SIX_MONTHS' },
+  { label: '12M', value: 'TWELVE_MONTHS' },
+  { label: 'All', value: 'ALL' },
+]
+
+function loadCashFlow() {
+  cashFlowLoading.value = true
+  dashboardService
+    .getCashFlow(cashFlowPeriod.value)
+    .then((d) => (cashFlow.value = d))
+    .finally(() => (cashFlowLoading.value = false))
+}
+
+watch(cashFlowPeriod, loadCashFlow)
 
 // -1 sentinel → 0 so the bar area still exists for hover/tooltip
 function val(v: number): number {
@@ -290,7 +355,7 @@ const barOptions = computed(() => ({
             else                        { original = cycle.current_revenue;     name = 'Receita Obtida' }
           }
 
-          if (original === 0 || 1) return `  ${name}: não foi calculado(a).`
+          if (original <= 0) return `  ${name}: não foi calculado(a).`
 
           const brl = original.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
           return `  ${name}: ${brl}`
@@ -300,9 +365,83 @@ const barOptions = computed(() => ({
   },
 }))
 
+function formatMonth(ym: string): string {
+  const [year, month] = ym.split('-').map(Number)
+  return new Date(year, month - 1).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })
+}
+
+const lineData = computed(() => ({
+  labels: cashFlow.value.map((m) => formatMonth(m.month)),
+  datasets: [
+    {
+      label: 'Receitas',
+      data: cashFlow.value.map((m) => m.income),
+      borderColor: '#2e7d32',
+      backgroundColor: '#2e7d3220',
+      fill: true,
+      tension: 0.35,
+      pointRadius: 3,
+      pointHoverRadius: 5,
+    },
+    {
+      label: 'Despesas',
+      data: cashFlow.value.map((m) => m.expense),
+      borderColor: '#c62828',
+      backgroundColor: '#c6282820',
+      fill: true,
+      tension: 0.35,
+      pointRadius: 3,
+      pointHoverRadius: 5,
+    },
+  ],
+}))
+
+const lineOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: { mode: 'index', intersect: false },
+  scales: {
+    x: {
+      ticks: { font: { family: 'Inter', size: 11 }, color: '#40493d' },
+      grid: { display: false },
+    },
+    y: {
+      beginAtZero: true,
+      ticks: {
+        font: { family: 'Inter', size: 11 },
+        color: '#40493d',
+        callback: (v: any) =>
+          `R$ ${Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`,
+      },
+      grid: { color: '#bfcaba44' },
+    },
+  },
+  plugins: {
+    legend: {
+      position: 'bottom',
+      labels: {
+        font: { family: 'Inter', size: 12 },
+        color: '#40493d',
+        usePointStyle: true,
+        pointStyleWidth: 8,
+        padding: 16,
+      },
+    },
+    tooltip: {
+      callbacks: {
+        label: (ctx: any) => {
+          const brl = (ctx.raw as number).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+          return `  ${ctx.dataset.label}: ${brl}`
+        },
+      },
+    },
+  },
+}))
+
 onMounted(() => {
   expensesLoading.value = true
   cyclesLoading.value = true
+  cashFlowLoading.value = true
   Promise.all([
     dashboardService
       .getExpensesByCategory()
@@ -312,6 +451,10 @@ onMounted(() => {
       .getCycleBudgets()
       .then((d) => (cycles.value = d))
       .finally(() => (cyclesLoading.value = false)),
+    dashboardService
+      .getCashFlow(cashFlowPeriod.value)
+      .then((d) => (cashFlow.value = d))
+      .finally(() => (cashFlowLoading.value = false)),
   ])
 })
 </script>
@@ -365,7 +508,7 @@ onMounted(() => {
 .charts-grid {
   display: flex;
   gap: 1.25rem;
-  align-items: flex-start;
+  align-items: stretch;
   flex-wrap: wrap;
 }
 
@@ -451,7 +594,7 @@ onMounted(() => {
 }
 
 /* ── Charts ───────────────────────────── */
-.pie-chart { height: 20rem; }
+.pie-chart { flex: 1; min-height: 0; }
 .bar-chart  { height: 20rem; }
 
 /* ── Skeletons ────────────────────────── */
@@ -591,4 +734,15 @@ onMounted(() => {
 
 .legend-dot-sm--green { background: #2e7d32; }
 .legend-dot-sm--red   { background: #c62828; }
+
+/* ── Cash flow section ────────────────── */
+.cashflow-section {
+  width: 100%;
+}
+
+.chart-card--line {
+  width: 100%;
+}
+
+.line-chart { height: 22rem; }
 </style>

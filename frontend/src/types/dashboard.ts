@@ -15,3 +15,11 @@ export interface CycleBudgetDto {
   current_revenue: number
   revenue_expected: boolean | null
 }
+
+export type CashFlowPeriod = 'THREE_MONTHS' | 'SIX_MONTHS' | 'TWELVE_MONTHS' | 'ALL'
+
+export interface MonthlyCashFlowDto {
+  month: string
+  income: number
+  expense: number
+}

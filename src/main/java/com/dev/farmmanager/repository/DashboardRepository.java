@@ -3,10 +3,13 @@ package com.dev.farmmanager.repository;
 import com.dev.farmmanager.domain.entity.Transaction;
 import com.dev.farmmanager.domain.projection.CategoryExpenseProjection;
 import com.dev.farmmanager.domain.projection.CycleBudgetProjection;
+import com.dev.farmmanager.domain.projection.MonthlyCashFlowProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
 
 import java.util.List;
 
@@ -76,4 +79,32 @@ public interface DashboardRepository extends JpaRepository<Transaction, Integer>
             LIMIT 6
             """, nativeQuery = true)
     List<CycleBudgetProjection> findCycleBudgets(@Param("userId") Integer userId);
+
+    @Query(value = """
+            SELECT
+                TO_CHAR(DATE_TRUNC('month', transaction_date), 'YYYY-MM') AS month,
+                SUM(CASE WHEN type = 'INCOME'  THEN total_value ELSE 0 END) AS income,
+                SUM(CASE WHEN type = 'EXPENSE' THEN total_value ELSE 0 END) AS expense
+            FROM transaction
+            WHERE user_id = :userId
+              AND transaction_date >= :cutoff
+            GROUP BY DATE_TRUNC('month', transaction_date)
+            ORDER BY DATE_TRUNC('month', transaction_date)
+            """, nativeQuery = true)
+    List<MonthlyCashFlowProjection> findMonthlyCashFlow(
+            @Param("userId") Integer userId,
+            @Param("cutoff") LocalDate cutoff);
+
+    @Query(value = """
+            SELECT
+                TO_CHAR(DATE_TRUNC('month', transaction_date), 'YYYY-MM') AS month,
+                SUM(CASE WHEN type = 'INCOME'  THEN total_value ELSE 0 END) AS income,
+                SUM(CASE WHEN type = 'EXPENSE' THEN total_value ELSE 0 END) AS expense
+            FROM transaction
+            WHERE user_id = :userId
+            GROUP BY DATE_TRUNC('month', transaction_date)
+            ORDER BY DATE_TRUNC('month', transaction_date)
+            """, nativeQuery = true)
+    List<MonthlyCashFlowProjection> findAllMonthlyCashFlow(@Param("userId") Integer userId);
+
 }

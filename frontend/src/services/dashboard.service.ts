@@ -1,5 +1,5 @@
 import http from '@/api/http'
-import type { CategoryExpenseDto, CycleBudgetDto } from '@/types/dashboard'
+import type { CategoryExpenseDto, CashFlowPeriod, CycleBudgetDto, MonthlyCashFlowDto } from '@/types/dashboard'
 
 export const dashboardService = {
   getExpensesByCategory: () =>
@@ -7,4 +7,7 @@ export const dashboardService = {
 
   getCycleBudgets: () =>
     http.get<CycleBudgetDto[]>('/farm/dashboard/cycles').then((r) => r.data),
+
+  getCashFlow: (period: CashFlowPeriod) =>
+    http.get<MonthlyCashFlowDto[]>('/farm/dashboard/cash-flow', { params: { period } }).then((r) => r.data),
 }
