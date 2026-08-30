@@ -1,6 +1,6 @@
 package com.dev.farmmanager.usecase.user;
 
-
+import com.dev.farmmanager.domain.payload.user.ChangePasswordPayload;
 import com.dev.farmmanager.domain.payload.user.UpdateUserPayload;
 import com.dev.farmmanager.exception.handler.UsernameNotAllowedException;
 import com.dev.farmmanager.mapper.UserMapper;
@@ -31,6 +31,16 @@ public class UserCommandImpl implements UserCommand {
         }
 
         service.update(userId, payload);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public ResponseEntity<Void> changePassword(@NonNull ChangePasswordPayload payload) {
+        final Integer userId = SecurityUtils.getCurrentUserId();
+
+        service.changePassword(userId, payload);
 
         return ResponseEntity.noContent().build();
     }

@@ -1,11 +1,6 @@
 <template>
   <div class="dashboard-view">
-    <div class="page-header">
-      <div class="page-header__title">
-        <h1>Dashboard</h1>
-        <p class="page-header__sub">Visão geral da sua propriedade</p>
-      </div>
-    </div>
+    <AppHeaderBar title="Dashboard" subtitle="Visão geral da sua propriedade" />
 
     <div class="charts-grid">
 
@@ -167,6 +162,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import Chart from 'primevue/chart'
 import Skeleton from 'primevue/skeleton'
+import AppHeaderBar from '@/components/AppHeaderBar.vue'
 import { dashboardService } from '@/services/dashboard.service'
 import type { CategoryExpenseDto, CashFlowPeriod, CycleBudgetDto, MonthlyCashFlowDto } from '@/types/dashboard'
 
@@ -485,23 +481,6 @@ onMounted(() => {
   background: var(--surface);
   font-family: 'Inter', sans-serif;
   overflow-y: auto;
-}
-
-.page-header { flex-shrink: 0; }
-
-.page-header__title h1 {
-  font-family: 'Manrope', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--on-surface);
-  margin: 0;
-  line-height: 1.2;
-}
-
-.page-header__sub {
-  font-size: 0.8125rem;
-  color: var(--on-surface-variant);
-  margin: 0.25rem 0 0;
 }
 
 /* ── Grid ─────────────────────────────── */

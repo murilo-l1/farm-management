@@ -9,6 +9,7 @@ public final class ErrorMessage {
     public static final String BLANK_CREDENTIALS = "Credenciais em branco";
     public static final String INVALID_CREDENTIALS = "Email ou senha incorretos";
     public static final String ALREADY_EXISTS = "Email já cadastrado";
+    public static final String WRONG_PASSWORD = "Senha atual incorreta";
     
     // Payload Validation messages
     public static final String REQUIRED_NAME = "O nome é obrigatório";

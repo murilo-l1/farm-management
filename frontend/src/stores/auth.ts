@@ -27,5 +27,11 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
   }
 
-  return { user, isAuthenticated, fetchMe, login, register, logout }
+  function updateProfile(name: string, phone: string) {
+    if (user.value) {
+      user.value = { ...user.value, name, phone }
+    }
+  }
+
+  return { user, isAuthenticated, fetchMe, login, register, logout, updateProfile }
 })

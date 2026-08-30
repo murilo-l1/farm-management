@@ -19,11 +19,16 @@
     >
       <template #header>
         <div class="table-header">
-          <slot name="filters" />
-          <IconField>
-            <InputIcon><i class="pi pi-search" /></InputIcon>
-            <InputText v-model="filters['global'].value" :placeholder="searchPlaceholder" />
-          </IconField>
+          <div class="table-header__left">
+            <slot name="actions" />
+          </div>
+          <div class="table-header__right">
+            <slot name="filters" />
+            <IconField>
+              <InputIcon><i class="pi pi-search" /></InputIcon>
+              <InputText v-model="filters['global'].value" :placeholder="searchPlaceholder" />
+            </IconField>
+          </div>
         </div>
       </template>
 
@@ -179,9 +184,16 @@ defineExpose({ exportCSV })
 .table-header {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 0.625rem;
   padding: 0.75rem 1rem;
+}
+
+.table-header__left,
+.table-header__right {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
 }
 
 .action-cell {

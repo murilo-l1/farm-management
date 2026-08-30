@@ -23,13 +23,13 @@ VALUES
 INSERT INTO crop_cycle_control (crop_cycle_id, current_investment, current_revenue, current_roi,
                                  health_score, progress_percentage, alerts_count, last_calculated_at)
 VALUES
-    (1,  2800.00, 4150.00,  48.21, 95, 100.00, 0, now()),  
-    (2,   650.00, 1080.00,  66.15, 92, 100.00, 0, now()),  
-    (3,   980.00,    0.00, -30.00, 78,  52.00, 1, now()),  
-    (4,  1200.00,    0.00, -62.50, 85,  30.00, 0, now()),  
-    (5,  1800.00, 2400.00,  33.33, 88,  85.00, 1, now()),  
-    (7,   750.00,    0.00, -53.13, 82,  45.00, 0, now()),  
-    (10, 2200.00, 3520.00,  60.00, 97, 100.00, 0, now());  
+    (1,  2800.00, 4550.00,  62.50, 95, 100.00, 0, now()),
+    (2,   650.00, 1080.00,  66.15, 92, 100.00, 0, now()),
+    (3,   980.00, 2150.00, 119.39, 78,  86.00, 1, now()),
+    (4,  1200.00, 1800.00,  50.00, 85,  40.00, 0, now()),
+    (5,  1800.00, 3300.00,  83.33, 88, 100.00, 1, now()),
+    (7,   750.00, 2950.00, 293.33, 82,  95.00, 0, now()),
+    (10, 2200.00, 3840.00,  74.55, 97, 100.00, 0, now());
 
 INSERT INTO category (user_id, name, color, created_at, updated_at)
 VALUES
@@ -123,5 +123,74 @@ VALUES
     (19,  1,   1.00, 85.00,   85.00),   
     (19,  4,  40.00,  4.80,  192.00),   
     
-    (20,  5,  50.00,  0.90,   45.00),   
-    (20,  4,  20.00,  4.80,   96.00);   
+    (20,  5,  50.00,  0.90,   45.00),
+    (20,  4,  20.00,  4.80,   96.00);
+
+-- Transações extras (nov/2024 a jul/2026) para dar continuidade e sazonalidade
+-- ao gráfico de Fluxo de Caixa Mensal do dashboard (curva de crescimento anual).
+INSERT INTO transaction (user_id, crop_cycle_id, stakeholder_id, category_id,
+                         type, description, total_value, transaction_date,
+                         status, payment_method, created_at, updated_at)
+VALUES
+    (2, 1,  2, NULL, 'INCOME',  'Venda Tomate Cereja – produção mensal',        600.00, '2024-11-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 2,  1, 1,    'EXPENSE', 'Custos operacionais – Alface Crespa',          400.00, '2024-11-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 3,  2, NULL, 'INCOME',  'Venda Cenoura Nantes – produção mensal',       900.00, '2024-12-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 5,  1, 2,    'EXPENSE', 'Custos operacionais – Abobrinha Caipira',      500.00, '2024-12-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 7,  2, NULL, 'INCOME',  'Venda Pepino Japonês – produção mensal',      1200.00, '2025-01-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 10, 1, 3,    'EXPENSE', 'Custos operacionais – Couve-flor Verônica',    700.00, '2025-01-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 1,  2, NULL, 'INCOME',  'Venda Tomate Cereja – produção mensal',       1500.00, '2025-02-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 2,  1, 4,    'EXPENSE', 'Custos operacionais – Alface Crespa',          900.00, '2025-02-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 3,  2, NULL, 'INCOME',  'Venda Cenoura Nantes – produção mensal',      2000.00, '2025-03-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 5,  1, 5,    'EXPENSE', 'Custos operacionais – Abobrinha Caipira',     1100.00, '2025-03-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 7,  2, NULL, 'INCOME',  'Venda Pepino Japonês – produção mensal',      2800.00, '2025-04-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 10, 1, 1,    'EXPENSE', 'Custos operacionais – Couve-flor Verônica',   1400.00, '2025-04-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 1,  2, NULL, 'INCOME',  'Venda Tomate Cereja – produção mensal',       4200.00, '2025-05-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 2,  1, 2,    'EXPENSE', 'Custos operacionais – Alface Crespa',         1900.00, '2025-05-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 3,  2, NULL, 'INCOME',  'Venda Cenoura Nantes – produção mensal',      6500.00, '2025-06-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 5,  1, 3,    'EXPENSE', 'Custos operacionais – Abobrinha Caipira',     2600.00, '2025-06-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 7,  2, NULL, 'INCOME',  'Venda Pepino Japonês – pico de colheita',     8200.00, '2025-07-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 10, 1, 4,    'EXPENSE', 'Custos operacionais – Couve-flor Verônica',   3200.00, '2025-07-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 1,  2, NULL, 'INCOME',  'Venda Tomate Cereja – produção mensal',       5000.00, '2025-08-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 2,  1, 5,    'EXPENSE', 'Custos operacionais – Alface Crespa',         2200.00, '2025-08-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 3,  2, NULL, 'INCOME',  'Venda Cenoura Nantes – produção mensal',      3200.00, '2025-09-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 5,  1, 1,    'EXPENSE', 'Custos operacionais – Abobrinha Caipira',     1600.00, '2025-09-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 7,  2, NULL, 'INCOME',  'Venda Pepino Japonês – produção mensal',      2100.00, '2025-10-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 10, 1, 2,    'EXPENSE', 'Custos operacionais – Couve-flor Verônica',   1200.00, '2025-10-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 1,  2, NULL, 'INCOME',  'Venda Tomate Cereja – produção mensal',       1400.00, '2025-11-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 2,  1, 3,    'EXPENSE', 'Custos operacionais – Alface Crespa',          900.00, '2025-11-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 3,  2, NULL, 'INCOME',  'Venda Cenoura Nantes – produção mensal',      1000.00, '2025-12-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 5,  1, 4,    'EXPENSE', 'Custos operacionais – Abobrinha Caipira',      700.00, '2025-12-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 7,  2, NULL, 'INCOME',  'Venda Pepino Japonês – produção mensal',       900.00, '2026-01-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 10, 1, 5,    'EXPENSE', 'Custos operacionais – Couve-flor Verônica',    600.00, '2026-01-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 1,  2, NULL, 'INCOME',  'Venda Tomate Cereja – produção mensal',       1200.00, '2026-02-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 2,  1, 1,    'EXPENSE', 'Custos operacionais – Alface Crespa',          750.00, '2026-02-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 3,  2, NULL, 'INCOME',  'Venda Cenoura Nantes – produção mensal',      1800.00, '2026-03-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 5,  1, 2,    'EXPENSE', 'Custos operacionais – Abobrinha Caipira',      950.00, '2026-03-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 7,  2, NULL, 'INCOME',  'Venda Pepino Japonês – produção mensal',      2600.00, '2026-04-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 10, 1, 3,    'EXPENSE', 'Custos operacionais – Couve-flor Verônica',   1300.00, '2026-04-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 1,  2, NULL, 'INCOME',  'Venda Tomate Cereja – produção mensal',       4000.00, '2026-05-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 2,  1, 4,    'EXPENSE', 'Custos operacionais – Alface Crespa',         1800.00, '2026-05-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 3,  2, NULL, 'INCOME',  'Venda Cenoura Nantes – produção mensal',      6200.00, '2026-06-10', 'FINISHED', 'PIX', now(), now()),
+    (2, 5,  1, 5,    'EXPENSE', 'Custos operacionais – Abobrinha Caipira',     2500.00, '2026-06-20', 'FINISHED', 'PIX', now(), now()),
+
+    (2, 7,  2, NULL, 'INCOME',  'Venda Pepino Japonês – produção mensal',      2500.00, '2026-07-02', 'FINISHED', 'PIX', now(), now()),
+    (2, 10, 1, 1,    'EXPENSE', 'Custos operacionais – Couve-flor Verônica',   1100.00, '2026-07-05', 'FINISHED', 'PIX', now(), now());

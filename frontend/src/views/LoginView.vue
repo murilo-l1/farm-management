@@ -61,7 +61,10 @@
           </div>
 
           <div class="field">
-            <label for="password">Senha</label>
+            <div class="field-label-row">
+              <label for="password">Senha</label>
+              <a href="#" class="forgot-link" tabindex="-1" @click.prevent>Esqueci minha senha</a>
+            </div>
             <AppPassword
               id="password"
               v-model="loginPassword"
@@ -407,6 +410,19 @@ function resetForm() {
 }
 .field { display: flex; flex-direction: column; gap: 0.375rem; }
 .field label { font-size: 0.875rem; font-weight: 500; color: var(--on-surface-variant); }
+
+.field-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.forgot-link {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--primary);
+  text-decoration: none;
+}
+.forgot-link:hover { text-decoration: underline; }
 
 .btn-back {
   display: flex; align-items: center; justify-content: center; gap: 0.5rem;

@@ -1,26 +1,7 @@
 <template>
   <div class="category-view">
     <!-- Header -->
-    <div class="page-header">
-      <div class="page-header__title">
-        <h1>Categorias</h1>
-        <p class="page-header__sub">Organize seus itens e transações por categoria</p>
-      </div>
-      <div class="page-header__actions">
-        <AppButton
-          icon="pi pi-external-link"
-          label="Exportar CSV"
-          severity="secondary"
-          outlined
-          @click="tableRef.exportCSV()"
-        />
-        <AppButton
-          icon="pi pi-plus"
-          label="Nova Categoria"
-          @click="handleAdd"
-        />
-      </div>
-    </div>
+    <AppHeaderBar title="Categorias" subtitle="Organize seus itens e transações por categoria" />
 
     <!-- Edit Drawer -->
     <Drawer
@@ -54,6 +35,10 @@
       @edit="handleEdit"
       @delete="handleDelete"
     >
+      <template #actions>
+        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined @click="tableRef.exportCSV()" />
+        <AppButton icon="pi pi-plus" label="Nova Categoria" @click="handleAdd" />
+      </template>
       <template #columns="{ loading }">
         <Column field="name" header="Nome" style="min-width: 16rem">
           <template #body="{ data }">
@@ -92,6 +77,7 @@ import Column from 'primevue/column'
 import Skeleton from 'primevue/skeleton'
 import Drawer from 'primevue/drawer'
 import AppButton from '@/components/AppButton.vue'
+import AppHeaderBar from '@/components/AppHeaderBar.vue'
 import AppDataTable from '@/components/AppDataTable.vue'
 import CategoryForm from '@/form/CategoryForm.vue'
 import { categoryService } from '@/services/category.service'
@@ -187,36 +173,6 @@ async function handleDelete(id: number) {
   background: var(--surface);
   font-family: 'Inter', sans-serif;
   overflow: hidden;
-}
-
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-shrink: 0;
-}
-
-.page-header__title h1 {
-  font-family: 'Manrope', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--on-surface);
-  margin: 0;
-  line-height: 1.2;
-}
-
-.page-header__sub {
-  font-size: 0.8125rem;
-  color: var(--on-surface-variant);
-  margin: 0.25rem 0 0;
-}
-
-.page-header__actions {
-  display: flex;
-  gap: 0.625rem;
-  align-items: center;
-  flex-shrink: 0;
 }
 
 .cell-name { font-weight: 600; color: var(--on-surface); }

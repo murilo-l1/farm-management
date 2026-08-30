@@ -1,10 +1,11 @@
 package com.dev.farmmanager.controller;
 
 import com.dev.farmmanager.controller.base.BaseController;
-import com.dev.farmmanager.domain.dto.user.FetchUserDto;
+import com.dev.farmmanager.domain.dto.user.UserDto;
+import com.dev.farmmanager.domain.payload.user.ChangePasswordPayload;
 import com.dev.farmmanager.domain.payload.user.UpdateUserPayload;
-import com.dev.farmmanager.usecase.user.UserFetch;
 import com.dev.farmmanager.usecase.user.UserCommand;
+import com.dev.farmmanager.usecase.user.UserFetch;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +24,18 @@ public class UserController extends BaseController {
     private final UserCommand update;
 
     @GetMapping(value = "/me")
-    public ResponseEntity<FetchUserDto> getCurrentUser() {
+    public ResponseEntity<UserDto> getCurrentUser() {
         return fetch.getCurrentUser();
     }
 
     @PutMapping
-    public ResponseEntity<Void> updateCurrentUser(@Valid @RequestBody @NotNull final UpdateUserPayload payload){
+    public ResponseEntity<Void> updateCurrentUser(@Valid @RequestBody @NotNull final UpdateUserPayload payload) {
         return update.update(payload);
+    }
+
+    @PatchMapping("/password")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody @NotNull final ChangePasswordPayload payload) {
+        return update.changePassword(payload);
     }
 
 }

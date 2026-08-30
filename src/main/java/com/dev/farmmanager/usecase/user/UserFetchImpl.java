@@ -1,6 +1,6 @@
 package com.dev.farmmanager.usecase.user;
 
-import com.dev.farmmanager.domain.dto.user.FetchUserDto;
+import com.dev.farmmanager.domain.dto.user.UserDto;
 import com.dev.farmmanager.domain.entity.User;
 import com.dev.farmmanager.exception.handler.UserNotFoundException;
 import com.dev.farmmanager.mapper.UserMapper;
@@ -21,7 +21,7 @@ public class UserFetchImpl implements UserFetch {
     private final UserMapper mapper;
 
     @Override
-    public ResponseEntity<FetchUserDto> getCurrentUser() {
+    public ResponseEntity<UserDto> getCurrentUser() {
         Integer userId = SecurityUtils.getCurrentUserId();
         User user = service.getById(userId).orElseThrow(UserNotFoundException::new);
 
@@ -29,10 +29,10 @@ public class UserFetchImpl implements UserFetch {
     }
 
     @Override
-    public ResponseEntity<FetchUserDto> getById(final @NonNull Integer userId) {
+    public ResponseEntity<UserDto> getById(final @NonNull Integer userId) {
         User user = service.getById(userId).orElseThrow(UserNotFoundException::new);
 
-        FetchUserDto dto = mapper.toDto(user);
+        UserDto dto = mapper.toDto(user);
 
         return ResponseEntity.ok(dto);
     }

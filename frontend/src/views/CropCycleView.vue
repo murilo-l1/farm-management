@@ -1,26 +1,7 @@
 <template>
   <div class="crop-cycle-view">
     <!-- Header -->
-    <div class="page-header">
-      <div class="page-header__title">
-        <h1>Safras</h1>
-        <p class="page-header__sub">Gerencie os ciclos de cultivo da sua propriedade</p>
-      </div>
-      <div class="page-header__actions">
-        <AppButton
-          icon="pi pi-external-link"
-          label="Exportar CSV"
-          severity="secondary"
-          outlined
-          @click="tableRef.exportCSV()"
-        />
-        <AppButton
-          icon="pi pi-plus"
-          label="Nova Safra"
-          @click="handleAdd"
-        />
-      </div>
-    </div>
+    <AppHeaderBar title="Safras" subtitle="Gerencie os ciclos de cultivo da sua propriedade" />
 
     <!-- Summary cards -->
     <div class="summary-grid">
@@ -96,6 +77,10 @@
       @edit="handleEdit"
       @delete="handleDelete"
     >
+      <template #actions>
+        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined @click="tableRef.exportCSV()" />
+        <AppButton icon="pi pi-plus" label="Nova Safra" @click="handleAdd" />
+      </template>
       <template #filters>
         <Select
           v-model="filterStatus"
@@ -196,6 +181,7 @@ import Select from 'primevue/select'
 import DatePicker from 'primevue/datepicker'
 import Drawer from 'primevue/drawer'
 import AppButton from '@/components/AppButton.vue'
+import AppHeaderBar from '@/components/AppHeaderBar.vue'
 import AppDataTable from '@/components/AppDataTable.vue'
 import { cropCycleService } from '@/services/crop-cycle.service'
 import { toast } from '@/services/toast'
@@ -347,36 +333,6 @@ async function handleDelete(id: number) {
   background: var(--surface);
   font-family: 'Inter', sans-serif;
   overflow: hidden;
-}
-
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-shrink: 0;
-}
-
-.page-header__title h1 {
-  font-family: 'Manrope', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--on-surface);
-  margin: 0;
-  line-height: 1.2;
-}
-
-.page-header__sub {
-  font-size: 0.8125rem;
-  color: var(--on-surface-variant);
-  margin: 0.25rem 0 0;
-}
-
-.page-header__actions {
-  display: flex;
-  gap: 0.625rem;
-  align-items: center;
-  flex-shrink: 0;
 }
 
 .summary-grid {
