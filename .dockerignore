@@ -1,0 +1,11 @@
+.git
+.gitignore
+.gradle
+build
+frontend
+docker
+claude-plans
+.idea
+*.md
+.env
+.env.*

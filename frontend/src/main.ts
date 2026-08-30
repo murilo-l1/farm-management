@@ -25,7 +25,13 @@ app.use(PrimeVue, {
 app.use(ToastService)
 app.use(ConfirmationService)
 
-const auth = useAuthStore()
-await auth.fetchMe().catch(() => {})
+// Restaura a sessão antes de montar para evitar um flash da tela de login.
+// Precisa ser uma função async: top-level await exige target esnext no build.
+async function bootstrap() {
+  const auth = useAuthStore()
+  await auth.fetchMe().catch(() => {})
 
-app.mount('#app')
+  app.mount('#app')
+}
+
+bootstrap()

@@ -1,0 +1,17 @@
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	# Backend Spring Boot. Mesma origem do SPA, então o cookie jwt
+	# (HttpOnly; Secure; SameSite=None) flui sem CORS.
+	handle /api/* {
+		reverse_proxy api:8080
+	}
+
+	# SPA. O vue-router usa createWebHistory, então qualquer rota
+	# desconhecida precisa cair no index.html em vez de 404.
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}
