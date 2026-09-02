@@ -9,12 +9,14 @@ import 'primeicons/primeicons.css'
 import App from './App.vue'
 import router from './router'
 import { useAuthStore } from '@/stores/auth'
+import { ptBrLocale } from '@/config/primevue-locale'
 
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
 app.use(PrimeVue, {
+  locale: ptBrLocale,
   theme: {
     preset: Aura,
     options: {

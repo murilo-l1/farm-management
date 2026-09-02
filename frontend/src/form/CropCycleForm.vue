@@ -11,7 +11,7 @@
       <!-- Cultura -->
       <div class="form-field form-field--full">
         <label class="form-label">Cultura <span class="form-required">*</span></label>
-        <AppInput v-model="form.crop" placeholder="Ex: Soja, Milho, Trigo..." fluid class="w-full" />
+        <AppInput v-model="form.crop" placeholder="Ex: Tomate, Abobrinha, Café..." fluid class="w-full" />
       </div>
 
       <!-- Status -->

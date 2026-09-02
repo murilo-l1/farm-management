@@ -12,6 +12,7 @@ public final class ErrorMessage {
     public static final String WRONG_PASSWORD = "Senha atual incorreta";
     
     // Payload Validation messages
+    public static final String VALIDATION_FAILED = "Requisição inválida.";
     public static final String REQUIRED_NAME = "O nome é obrigatório";
     public static final String INVALID_NAME_LENGTH = "Tamanho de nome inválido";
     public static final String REQUIRED_EMAIL = "O email é obrigatório";

@@ -28,6 +28,7 @@
     <!-- Table -->
     <AppDataTable
       ref="tableRef"
+      export-filename="categorias"
       :value="categories"
       :loading="loading"
       :global-filter-fields="['name']"
@@ -36,7 +37,7 @@
       @delete="handleDelete"
     >
       <template #actions>
-        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined @click="tableRef.exportCSV()" />
+        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined :disabled="loading" @click="tableRef.exportCSV()" />
         <AppButton icon="pi pi-plus" label="Nova Categoria" @click="handleAdd" />
       </template>
       <template #columns="{ loading }">

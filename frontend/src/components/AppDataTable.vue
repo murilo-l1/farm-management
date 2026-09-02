@@ -13,6 +13,7 @@
       :meta-key-selection="false"
       :data-key="dataKey"
       :row-class="rowClass"
+      :export-filename="resolvedExportFilename"
       :expanded-rows="expandedRows ?? []"
       @update:expanded-rows="emit('update:expandedRows', $event)"
       class="app-data-table"
@@ -34,7 +35,7 @@
 
       <slot name="columns" :loading="loading" />
 
-      <Column header="" style="width: 6rem; text-align: right">
+      <Column header="" :exportable="false" style="width: 6rem; text-align: right">
         <template #body="{ data }">
           <div v-if="!loading" class="action-cell">
             <button class="action-btn action-btn--edit" title="Editar" @click.stop="emit('edit', data)">
@@ -64,13 +65,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
 import { FilterMatchMode } from '@primevue/core/api'
+import { toIsoDate } from '@/utils/format'
 
 interface Props {
   value: any[]
@@ -79,12 +81,14 @@ interface Props {
   globalFilterFields: string[]
   searchPlaceholder?: string
   rowClassFn?: (row: any) => string
+  exportFilename?: string
   expandedRows?: any[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   dataKey: 'id',
   searchPlaceholder: 'Buscar...',
+  exportFilename: 'export',
 })
 
 const emit = defineEmits<{
@@ -96,6 +100,11 @@ const emit = defineEmits<{
 const dt = ref()
 const selectedRow = ref<any>(null)
 const skeletonRows = Array(7).fill({})
+
+// Computed para a data ser resolvida no momento do export, não na montagem.
+// O PrimeVue acrescenta a extensão .csv sozinho.
+const resolvedExportFilename = computed(() => `${props.exportFilename}_${toIsoDate(new Date())}`)
+
 const filters = ref({ global: { value: null as string | null, matchMode: FilterMatchMode.CONTAINS } })
 
 watch(() => props.value, (newValue) => {

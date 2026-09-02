@@ -71,6 +71,7 @@
     <!-- Table -->
     <AppDataTable
       ref="tableRef"
+      export-filename="financeiro"
       :value="transactions"
       :loading="loading"
       :global-filter-fields="['description', 'crop_cycle_name', 'stakeholder_name', 'category_name']"
@@ -82,7 +83,7 @@
       @delete="handleDelete"
     >
       <template #actions>
-        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined @click="tableRef?.exportCSV()" />
+        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined :disabled="loading" @click="tableRef?.exportCSV()" />
         <AppButton icon="pi pi-plus" label="Nova Transação" @click="handleAdd" />
       </template>
       <template #filters>

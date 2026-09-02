@@ -70,6 +70,7 @@
     <!-- Table -->
     <AppDataTable
       ref="tableRef"
+      export-filename="safras"
       :value="cropCycles"
       :loading="loading"
       :global-filter-fields="['name', 'crop']"
@@ -78,7 +79,7 @@
       @delete="handleDelete"
     >
       <template #actions>
-        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined @click="tableRef.exportCSV()" />
+        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined :disabled="loading" @click="tableRef.exportCSV()" />
         <AppButton icon="pi pi-plus" label="Nova Safra" @click="handleAdd" />
       </template>
       <template #filters>

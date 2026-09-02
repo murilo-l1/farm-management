@@ -1,9 +1,11 @@
 package com.dev.farmmanager.controller.base;
 
 import com.dev.farmmanager.exception.handler.BaseException;
+import com.dev.farmmanager.exception.handler.message.ErrorMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +15,12 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 // credits for handler design: Gabriel Cismoski
 
@@ -33,6 +38,27 @@ public class BaseController {
         String finalMessage = String.join("; ", messages);
 
         log.error("MethodArgumentNotValidException - {}", finalMessage);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiError(Instant.now(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), finalMessage, request.getRequestURI()));
+    }
+
+    // Uma constraint direta em parâmetro de handler (ex: @PathVariable @NotNull) liga a method
+    // validation do Spring MVC, que agrupa todas as violações do método aqui em vez de lançar
+    // MethodArgumentNotValidException. Sem este handler, o Spring serializa o getMessage() cru
+    // ("Validation failed for method=... Error count: N") e a mensagem PT-BR do campo se perde.
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> handleHandlerMethodValidationException(HandlerMethodValidationException e, HttpServletRequest request) {
+        String finalMessage = e.getAllErrors().stream()
+                .map(MessageSourceResolvable::getDefaultMessage)
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining("; "));
+
+        if (finalMessage.isBlank()) {
+            finalMessage = ErrorMessage.VALIDATION_FAILED;
+        }
+
+        log.error("HandlerMethodValidationException - {}", finalMessage);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ApiError(Instant.now(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), finalMessage, request.getRequestURI()));
     }

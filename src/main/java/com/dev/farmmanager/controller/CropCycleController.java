@@ -10,7 +10,6 @@ import com.dev.farmmanager.usecase.cropcycle.CropCycleCommand;
 import com.dev.farmmanager.usecase.cropcycle.CropCycleFetch;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
@@ -57,7 +56,7 @@ public class CropCycleController extends BaseController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a crop cycle by ID")
-    public ResponseEntity<CropCycleDto> update(@PathVariable @NotNull Integer id, @Valid @RequestBody CropCyclePayload payload) {
+    public ResponseEntity<CropCycleDto> update(@PathVariable Integer id, @Valid @RequestBody CropCyclePayload payload) {
         return command.update(id, payload);
     }
 

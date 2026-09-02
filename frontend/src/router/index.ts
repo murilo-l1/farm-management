@@ -11,6 +11,18 @@ const router = createRouter({
       meta: { requiresGuest: true },
     },
     {
+      path: '/privacidade',
+      name: 'privacidade',
+      component: () => import('@/views/LegalView.vue'),
+      props: { doc: 'privacy' },
+    },
+    {
+      path: '/termos',
+      name: 'termos',
+      component: () => import('@/views/LegalView.vue'),
+      props: { doc: 'terms' },
+    },
+    {
       path: '/',
       component: () => import('@/views/AppLayout.vue'),
       meta: { requiresAuth: true },

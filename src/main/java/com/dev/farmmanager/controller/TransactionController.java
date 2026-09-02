@@ -10,7 +10,6 @@ import com.dev.farmmanager.usecase.transaction.TransactionCommand;
 import com.dev.farmmanager.usecase.transaction.TransactionFetch;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
@@ -52,7 +51,7 @@ public class TransactionController extends BaseController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a transaction by ID")
-    public ResponseEntity<TransactionDto> update(@PathVariable @NotNull Integer id, @Valid @RequestBody TransactionPayload payload) {
+    public ResponseEntity<TransactionDto> update(@PathVariable Integer id, @Valid @RequestBody TransactionPayload payload) {
         return command.update(id, payload);
     }
 

@@ -193,7 +193,7 @@ const PERIOD_OPTIONS: { label: string; value: CashFlowPeriod }[] = [
   { label: '3M',  value: 'THREE_MONTHS' },
   { label: '6M',  value: 'SIX_MONTHS' },
   { label: '12M', value: 'TWELVE_MONTHS' },
-  { label: 'All', value: 'ALL' },
+  { label: 'Todo Período', value: 'ALL' },
 ]
 
 function loadCashFlow() {
@@ -553,6 +553,7 @@ onMounted(() => {
 
 .mode-btn {
   padding: 0.3rem 0.75rem;
+  white-space: nowrap;
   font-family: 'Inter', sans-serif;
   font-size: 0.75rem;
   font-weight: 600;

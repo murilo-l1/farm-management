@@ -63,7 +63,7 @@
           <div class="field">
             <div class="field-label-row">
               <label for="password">Senha</label>
-              <a href="#" class="forgot-link" tabindex="-1" @click.prevent>Esqueci minha senha</a>
+              <a href="#" class="forgot-link" tabindex="-1" @click.prevent="handleForgotPassword">Esqueci minha senha</a>
             </div>
             <AppPassword
               id="password"
@@ -161,8 +161,8 @@
         <div class="legal">
           <p>Ao continuar, você concorda com nossos procedimentos de segurança e auditoria agrária.</p>
           <div class="legal-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms</a>
+            <RouterLink to="/privacidade">Política de Privacidade</RouterLink>
+            <RouterLink to="/termos">Termos de Uso</RouterLink>
           </div>
         </div>
       </div>
@@ -178,13 +178,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { Sprout } from 'lucide-vue-next'
 import AppButton from '@/components/AppButton.vue'
 import AppInput from '@/components/AppInput.vue'
 import AppPassword from '@/components/AppPassword.vue'
 import { useAuthStore } from '@/stores/auth'
 import { formatPhone, stripMask } from '@/utils/format'
+import { toast } from '@/services/toast'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -206,6 +207,10 @@ function onPhoneInput(event: Event) {
   const digits = stripMask((event.target as HTMLInputElement).value).slice(0, 11)
   regPhone.value = digits
   regPhoneDisplay.value = formatPhone(digits)
+}
+
+function handleForgotPassword() {
+  toast.warn('Integração com envio de e-mail em desenvolvimento.')
 }
 
 async function handleLogin() {
