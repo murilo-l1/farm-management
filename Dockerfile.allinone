@@ -1,0 +1,53 @@
+# syntax=docker/dockerfile:1
+#
+# Imagem unica para Cloud Run / Railway / Render: Caddy serve o SPA e faz proxy de /api
+# para o Spring Boot rodando no mesmo container. Plataformas serverless expoem
+# UMA porta ($PORT), por isso os dois processos convivem aqui em vez de virarem
+# dois servicos como no docker-compose.prod.yaml.
+#
+# Base Alpine (musl) em todos os estagios: imagem ~300 MB, dentro dos 0.5 GB
+# gratuitos do Artifact Registry e com cold start menor.
+
+# ---------- Stage 1: jar ----------
+FROM eclipse-temurin:21-jdk-alpine AS backend
+WORKDIR /app
+COPY gradlew settings.gradle build.gradle ./
+COPY gradle ./gradle
+RUN sed -i 's/\r$//' gradlew && chmod +x gradlew \
+    && ./gradlew --no-daemon dependencies --quiet || true
+COPY src ./src
+RUN ./gradlew --no-daemon clean bootJar -x test
+
+# ---------- Stage 2: SPA ----------
+FROM node:22-alpine AS frontend
+WORKDIR /app
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
+# ---------- Stage 3: runtime ----------
+FROM eclipse-temurin:21-jre-alpine
+
+# bash: o entrypoint usa /dev/tcp para esperar o Spring subir
+RUN apk add --no-cache bash
+
+# Caddy vem da imagem alpine oficial (mesma libc do runtime)
+COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
+
+WORKDIR /app
+COPY --from=backend  /app/build/libs/*.jar  /app/app.jar
+COPY --from=frontend /app/dist              /srv
+COPY docker/allinone/Caddyfile              /etc/caddy/Caddyfile
+COPY docker/allinone/entrypoint.sh          /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+RUN addgroup -S farm && adduser -S -G farm farm \
+    && chown -R farm:farm /app /srv
+USER farm
+
+# Porta interna do Spring. O Caddy escuta em $PORT (definida pela plataforma).
+ENV SERVER_PORT=8081
+EXPOSE 8080
+
+ENTRYPOINT ["/entrypoint.sh"]

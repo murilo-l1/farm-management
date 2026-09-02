@@ -1,0 +1,12 @@
+# Contexto do build do Cloud Run: precisa de src/ E frontend/, ao contrario
+# do .dockerignore da raiz (que e do build so-backend do docker-compose).
+.git
+.gradle
+build
+frontend/node_modules
+frontend/dist
+claude-plans
+.idea
+*.md
+.env
+.env.*

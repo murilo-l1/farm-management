@@ -1,0 +1,9 @@
+# Sem isto o Railway usaria o Dockerfile da raiz, que empacota SO o backend
+# (ele existe para o docker-compose da VM, onde o SPA vive noutro container).
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile.allinone"
+
+[deploy]
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
