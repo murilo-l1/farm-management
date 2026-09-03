@@ -50,7 +50,7 @@ psql "postgresql://postgres:SENHA@viaduct.proxy.rlwy.net:PORTA/railway" -f docke
 Sem `psql` instalado, dá para colar o conteúdo dos dois arquivos no **Data** →
 **Query** do próprio serviço Postgres, nessa ordem.
 
-O `demo_data.sql` cria a conta de vitrine `demo@quantaplanta.com` / `demo123`
+O `demo_data.sql` cria a conta de vitrine `demo@quantaplanta.com` / `quanta123`
 (2 safras, 5 categorias, 3 parceiros, 15 transações). Ele é re-executável: para
 restaurar a demo depois de visitantes mexerem nela, é só aplicar o arquivo de novo.
 O `mock_data.sql` (`teste@email.com`, 10 safras) é seed de desenvolvimento e **não**
@@ -114,7 +114,7 @@ Sem barra no fim — `SecurityConfig` usa `addAllowedOrigin`, que é match exato
 ## Verificação
 
 1. `https://<seu-app>.up.railway.app` carrega o login com cadeado válido
-2. Login `demo@quantaplanta.com` / `demo123` → DevTools → Application → Cookies:
+2. Login `demo@quantaplanta.com` / `quanta123` → DevTools → Application → Cookies:
    `jwt` com `HttpOnly`, `Secure`, `SameSite=None`
 3. F5 direto em `/dashboard` → não pode dar 404 (fallback do Caddy)
 4. Dashboard renderiza os gráficos (prova que o demo_data chegou ao banco)

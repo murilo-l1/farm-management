@@ -1,5 +1,5 @@
 -- =============================================================================
--- Conta de demonstração pública — demo@quantaplanta.com / demo123
+-- Conta de demonstração pública — demo@quantaplanta.com / quanta123
 -- > docker exec -i farm-local-database psql -U farmadmin -d farmdb < docker/init/demo_data.sql
 -- =============================================================================
 
@@ -33,7 +33,7 @@ DELETE FROM farm_user WHERE email = 'demo@quantaplanta.com';
 
 INSERT INTO farm_user (name, phone, email, password, created_at, updated_at)
 VALUES ('Demo QuantaPlanta', '35998887766', 'demo@quantaplanta.com',
-        '$2a$10$3bYY71Wc1qi/Xa3TTBhOeOZV3oW5dZT4XISnKs9pt0t9fIP8l8jvq',
+        '$2a$10$N2hlORbEkx1lLX0LuolE3OwS5YC1cVdFSpggJae7Kc50yIvC2k7Ri',
         now(), now());
 
 

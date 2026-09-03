@@ -152,7 +152,7 @@ pg_dump "postgresql://...connection string..." | gzip > farmdb_$(date +%F).sql.g
   acordar. Soma com o cold start do Cloud Run no primeiro acesso.
 - **Swagger**: `SecurityConfig` manda `anyRequest()` para `hasRole("ADMIN")`, então
   `/swagger-ui.html` responde 401/403. Comportamento já existente.
-- **Conta de demonstração**: `demo_data.sql` cria `demo@quantaplanta.com` / `demo123`
+- **Conta de demonstração**: `demo_data.sql` cria `demo@quantaplanta.com` / `quanta123`
   (2 safras, 15 transações). O `mock_data.sql` é seed de desenvolvimento e não vai
   para produção; para restaurar a demo depois de visitantes mexerem nela, reaplique
   o `demo_data.sql` — ele é re-executável.
