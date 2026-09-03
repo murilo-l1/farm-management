@@ -10,6 +10,7 @@ services:
     volumes:
       - ./init/init.sql:/docker-entrypoint-initdb.d/01_init.sql
       - ./init/mock_data.sql:/docker-entrypoint-initdb.d/02_mock_data.sql
+      - ./init/demo_data.sql:/docker-entrypoint-initdb.d/03_demo_data.sql
       - farm-local-database-volume:/farm/data
     ports:
       - "15435:5432"

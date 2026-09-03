@@ -32,7 +32,7 @@ alteração de código e sem CORS, igual ao plano da VM.
 ```bash
 # no seu Windows, com psql instalado (ou pelo SQL Editor do console da Neon)
 psql "postgresql://...connection string..." -f docker/init/init.sql
-psql "postgresql://...connection string..." -f docker/init/mock_data.sql
+psql "postgresql://...connection string..." -f docker/init/demo_data.sql
 ```
 
 4. Monte a **URL JDBC** (formato diferente da string da Neon):
@@ -152,8 +152,11 @@ pg_dump "postgresql://...connection string..." | gzip > farmdb_$(date +%F).sql.g
   acordar. Soma com o cold start do Cloud Run no primeiro acesso.
 - **Swagger**: `SecurityConfig` manda `anyRequest()` para `hasRole("ADMIN")`, então
   `/swagger-ui.html` responde 401/403. Comportamento já existente.
-- **Conta de demonstração**: `mock_data.sql` cria `teste@email.com` / `teste123`.
-  O site é público — trate como conta de vitrine.
+- **Conta de demonstração**: `demo_data.sql` cria `demo@quantaplanta.com` / `demo123`
+  (2 safras, 15 transações). O `mock_data.sql` é seed de desenvolvimento e não vai
+  para produção; para restaurar a demo depois de visitantes mexerem nela, reaplique
+  o `demo_data.sql` — ele é re-executável.
+  O site é público, então trate como conta de vitrine.
 
 ---
 

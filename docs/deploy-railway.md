@@ -44,11 +44,17 @@ No serviço Postgres → aba **Variables** → copie `DATABASE_PUBLIC_URL`
 
 ```bash
 psql "postgresql://postgres:SENHA@viaduct.proxy.rlwy.net:PORTA/railway" -f docker/init/init.sql
-psql "postgresql://postgres:SENHA@viaduct.proxy.rlwy.net:PORTA/railway" -f docker/init/mock_data.sql
+psql "postgresql://postgres:SENHA@viaduct.proxy.rlwy.net:PORTA/railway" -f docker/init/demo_data.sql
 ```
 
 Sem `psql` instalado, dá para colar o conteúdo dos dois arquivos no **Data** →
 **Query** do próprio serviço Postgres, nessa ordem.
+
+O `demo_data.sql` cria a conta de vitrine `demo@quantaplanta.com` / `demo123`
+(2 safras, 5 categorias, 3 parceiros, 15 transações). Ele é re-executável: para
+restaurar a demo depois de visitantes mexerem nela, é só aplicar o arquivo de novo.
+O `mock_data.sql` (`teste@email.com`, 10 safras) é seed de desenvolvimento e **não**
+vai para produção.
 
 ---
 
@@ -108,10 +114,10 @@ Sem barra no fim — `SecurityConfig` usa `addAllowedOrigin`, que é match exato
 ## Verificação
 
 1. `https://<seu-app>.up.railway.app` carrega o login com cadeado válido
-2. Login `teste@email.com` / `teste123` → DevTools → Application → Cookies:
+2. Login `demo@quantaplanta.com` / `demo123` → DevTools → Application → Cookies:
    `jwt` com `HttpOnly`, `Secure`, `SameSite=None`
 3. F5 direto em `/dashboard` → não pode dar 404 (fallback do Caddy)
-4. Dashboard renderiza os gráficos (prova que o mock_data chegou ao banco)
+4. Dashboard renderiza os gráficos (prova que o demo_data chegou ao banco)
 5. Criar conta nova em `/register` → deve ver tudo zerado
 
 ## Operação
