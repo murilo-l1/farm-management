@@ -12,11 +12,8 @@ services:
       # mudou o caminho padrão, e assim o comportamento fica previsível.
       PGDATA: /farm/data/pgdata
     volumes:
-      # Só rodam no primeiro boot, com o volume vazio.
-      # Prod leva só o schema + a conta de demonstração; o mock_data.sql
-      # (teste@email.com) é seed de desenvolvimento e fica só no compose local.
-      - ./docker/init/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
-      - ./docker/init/demo_data.sql:/docker-entrypoint-initdb.d/02_demo_data.sql:ro
+      # Schema + conta de demonstração são criados pelo Flyway na subida da API
+      # (src/main/resources/db/migration), não mais por scripts do Postgres aqui.
       - farm-database-volume:/farm/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
