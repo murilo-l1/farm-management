@@ -4,26 +4,20 @@
     <AppHeaderBar title="Categorias" subtitle="Organize seus itens e transações por categoria" />
 
     <!-- Edit Drawer -->
-    <Drawer
+    <AppFormDrawer
       v-model:visible="drawerOpen"
-      position="right"
       :header="drawerHeader"
-      style="width: 36rem"
+      :show-skeleton="drawerLoading && !editInitialData"
+      :skeleton-rows="3"
     >
-      <div v-if="drawerLoading && !editInitialData" class="drawer-loading">
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="40%" class="mb-3" />
-        <Skeleton height="1.5rem" width="50%" />
-      </div>
       <CategoryForm
-        v-else
         :initial-data="editInitialData"
         :loading="drawerLoading"
         :mode="drawerMode"
         @submit="handleSave"
         @cancel="drawerOpen = false"
       />
-    </Drawer>
+    </AppFormDrawer>
 
     <!-- Table -->
     <AppDataTable
@@ -37,7 +31,7 @@
       @delete="handleDelete"
     >
       <template #actions>
-        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined :disabled="loading" @click="tableRef.exportCSV()" />
+        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined :disabled="loading" class="hidden md:inline-flex" @click="tableRef.exportCSV()" />
         <AppButton icon="pi pi-plus" label="Nova Categoria" @click="handleAdd" />
       </template>
       <template #columns="{ loading }">
@@ -62,6 +56,14 @@
         </Column>
       </template>
 
+      <template #card="{ data, loading }">
+        <Skeleton v-if="loading" height="1.5rem" width="50%" border-radius="2rem" />
+        <div v-else class="card-row">
+          <span class="color-dot" :style="{ backgroundColor: data.color ?? DEFAULT_COLOR }" />
+          <span class="cell-name">{{ data.name }}</span>
+        </div>
+      </template>
+
       <template #empty>
         <div class="empty-state">
           <span class="material-symbols-outlined empty-icon">label</span>
@@ -76,10 +78,10 @@
 import { ref, computed, onMounted } from 'vue'
 import Column from 'primevue/column'
 import Skeleton from 'primevue/skeleton'
-import Drawer from 'primevue/drawer'
 import AppButton from '@/components/AppButton.vue'
 import AppHeaderBar from '@/components/AppHeaderBar.vue'
 import AppDataTable from '@/components/AppDataTable.vue'
+import AppFormDrawer from '@/components/AppFormDrawer.vue'
 import CategoryForm from '@/form/CategoryForm.vue'
 import { categoryService } from '@/services/category.service'
 import { toast } from '@/services/toast'
@@ -187,8 +189,18 @@ async function handleDelete(id: number) {
   white-space: nowrap;
 }
 
-.drawer-loading { padding: 1.5rem; display: flex; flex-direction: column; }
-.mb-3 { margin-bottom: 1rem; }
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.color-dot {
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
 
 .empty-state {
   display: flex;
@@ -204,5 +216,15 @@ async function handleDelete(id: number) {
   font-size: 2.5rem;
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48;
   opacity: 0.5;
+}
+
+@media (max-width: 767px) {
+  .category-view {
+    height: auto;
+    min-height: 100%;
+    padding: 1rem;
+    gap: 1rem;
+    overflow: visible;
+  }
 }
 </style>

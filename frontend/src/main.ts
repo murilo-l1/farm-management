@@ -5,6 +5,7 @@ import Aura from '@primevue/themes/aura'
 import ToastService from 'primevue/toastservice'
 import ConfirmationService from 'primevue/confirmationservice'
 import 'primeicons/primeicons.css'
+import '@/assets/main.css'
 
 import App from './App.vue'
 import router from './router'
@@ -21,6 +22,10 @@ app.use(PrimeVue, {
     preset: Aura,
     options: {
       darkModeSelector: '.app-dark',
+      cssLayer: {
+        name: 'primevue',
+        order: 'theme, base, primevue, utilities',
+      },
     },
   },
 })

@@ -5,7 +5,7 @@
 
     <!-- Summary cards -->
     <div class="summary-grid">
-      <div class="summary-card">
+      <div class="summary-card summary-card--main">
         <div class="summary-card__icon summary-card__icon--cashflow">
           <span class="material-symbols-outlined">account_balance_wallet</span>
         </div>
@@ -46,27 +46,20 @@
     </div>
 
     <!-- Drawer -->
-    <Drawer
+    <AppFormDrawer
       v-model:visible="drawerOpen"
-      position="right"
       :header="drawerHeader"
-      style="width: 56rem"
+      :show-skeleton="drawerLoading && !editInitialData"
+      desktop-width="56rem"
     >
-      <div v-if="drawerLoading && !editInitialData" class="drawer-loading">
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="40%" />
-      </div>
       <TransactionForm
-        v-else
         :initial-data="editInitialData"
         :loading="drawerLoading"
         :mode="drawerMode"
         @submit="handleSave"
         @cancel="drawerOpen = false"
       />
-    </Drawer>
+    </AppFormDrawer>
 
     <!-- Table -->
     <AppDataTable
@@ -77,13 +70,14 @@
       :global-filter-fields="['description', 'crop_cycle_name', 'stakeholder_name', 'category_name']"
       :row-class-fn="rowClassFn"
       :expanded-rows="expandedRows"
+      :active-filter-count="activeFilterCount"
       @update:expanded-rows="expandedRows = $event"
       search-placeholder="Buscar por descrição, safra, parceiro ou categoria"
       @edit="handleEdit"
       @delete="handleDelete"
     >
       <template #actions>
-        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined :disabled="loading" @click="tableRef?.exportCSV()" />
+        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined :disabled="loading" class="hidden md:inline-flex" @click="tableRef?.exportCSV()" />
         <AppButton icon="pi pi-plus" label="Nova Transação" @click="handleAdd" />
       </template>
       <template #filters>
@@ -218,6 +212,59 @@
         </div>
       </template>
 
+      <template #card="{ data, loading }">
+        <template v-if="loading">
+          <div class="card-row">
+            <Skeleton height="1rem" width="55%" />
+            <Skeleton height="1rem" width="25%" />
+          </div>
+          <Skeleton height="0.875rem" width="40%" class="card-skeleton" />
+          <Skeleton height="1.5rem" width="50%" border-radius="2rem" />
+        </template>
+        <template v-else>
+          <div class="card-row">
+            <span :class="data.description ? 'cell-description' : 'cell-empty'" class="card-title">
+              {{ data.description ?? 'Sem descrição' }}
+            </span>
+            <span
+              class="cell-value card-value"
+              :class="data.type === 'INCOME' ? 'cell-value--income' : 'cell-value--expense'"
+            >{{ formatCurrency(data.total_value) }}</span>
+          </div>
+
+          <p class="card-meta">
+            {{ [formatDate(data.transaction_date), data.crop_cycle_name, data.stakeholder_name].filter(Boolean).join(' · ') }}
+          </p>
+
+          <div class="card-badges">
+            <span class="status-badge" :style="statusStyle(data.status)">{{ statusLabel(data.status) }}</span>
+            <span
+              v-if="data.category_name"
+              class="category-badge"
+              :style="categoryBadgeStyle(data.category_id)"
+            >{{ data.category_name }}</span>
+          </div>
+
+          <template v-if="data.items?.length > 0">
+            <button type="button" class="card-items-toggle" @click.stop="toggleCardItems(data.id)">
+              <span class="material-symbols-outlined">
+                {{ expandedCardIds.has(data.id) ? 'expand_less' : 'expand_more' }}
+              </span>
+              {{ data.items.length }} {{ data.items.length === 1 ? 'item' : 'itens' }}
+            </button>
+            <ul v-if="expandedCardIds.has(data.id)" class="card-items" @click.stop>
+              <li v-for="item in (data.items as TransactionItem[])" :key="item.id" class="card-items__row">
+                <div class="card-items__info">
+                  <span class="expansion-items__name">{{ item.item_name }}</span>
+                  <span class="card-items__detail">{{ item.quantity }} × {{ formatCurrency(item.unit_price) }}</span>
+                </div>
+                <span class="expansion-items__price">{{ formatCurrency(item.total_price) }}</span>
+              </li>
+            </ul>
+          </template>
+        </template>
+      </template>
+
       <template #empty>
         <div class="empty-state">
           <span class="material-symbols-outlined empty-icon">receipt_long</span>
@@ -234,10 +281,10 @@ import Column from 'primevue/column'
 import Skeleton from 'primevue/skeleton'
 import Select from 'primevue/select'
 import DatePicker from 'primevue/datepicker'
-import Drawer from 'primevue/drawer'
 import AppButton from '@/components/AppButton.vue'
 import AppHeaderBar from '@/components/AppHeaderBar.vue'
 import AppDataTable from '@/components/AppDataTable.vue'
+import AppFormDrawer from '@/components/AppFormDrawer.vue'
 import TransactionForm from '@/form/TransactionForm.vue'
 import { transactionService } from '@/services/transaction.service'
 import { categoryService } from '@/services/category.service'
@@ -260,7 +307,12 @@ const filterDate = ref<Date | null>(null)
 const filterCropCycleId = ref<number | null>(null)
 const filterStatus = ref<TransactionStatus | null>(null)
 
+const activeFilterCount = computed(() =>
+  [filterType.value, filterDate.value, filterCropCycleId.value, filterStatus.value].filter((f) => f != null).length
+)
+
 const expandedRows = ref<TransactionRow[]>([])
+const expandedCardIds = ref<Set<number>>(new Set())
 
 const drawerOpen = ref(false)
 const drawerLoading = ref(false)
@@ -331,6 +383,12 @@ function rowClassFn(row: TransactionRow): string {
   const typeClass = row.type === 'INCOME' ? 'row--income' : 'row--expense'
   const expandClass = row.items?.length ? '' : 'row--no-expand'
   return [typeClass, expandClass].filter(Boolean).join(' ')
+}
+
+function toggleCardItems(id: number) {
+  const next = new Set(expandedCardIds.value)
+  next.has(id) ? next.delete(id) : next.add(id)
+  expandedCardIds.value = next
 }
 
 async function loadData() {
@@ -600,9 +658,99 @@ async function handleDelete(id: number) {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Drawer skeleton ── */
-.drawer-loading { padding: 1.5rem; display: flex; flex-direction: column; }
-.mb-3 { margin-bottom: 1rem; }
+:deep(.data-card.row--income) {
+  border-left: 4px solid #2e7d32;
+}
+
+:deep(.data-card.row--expense) {
+  border-left: 4px solid #c62828;
+}
+
+.card-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.card-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-value {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-meta {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+}
+
+.card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.card-skeleton { margin: 0.5rem 0; }
+
+.card-items-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2.25rem;
+  margin-top: 0.5rem;
+  padding: 0 0.5rem 0 0.25rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: #f5f7f5;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+}
+
+.card-items-toggle .material-symbols-outlined { font-size: 1.25rem; }
+
+.card-items {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  border: 1px solid #eef1eb;
+  border-radius: 0.5rem;
+  cursor: default;
+}
+
+.card-items__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.card-items__row + .card-items__row {
+  border-top: 1px solid #eef1eb;
+}
+
+.card-items__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.card-items__detail {
+  font-size: 0.75rem;
+  color: var(--on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
 
 /* ── Empty state ── */
 .empty-state {
@@ -619,5 +767,48 @@ async function handleDelete(id: number) {
   font-size: 2.5rem;
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48;
   opacity: 0.5;
+}
+
+@media (max-width: 767px) {
+  .transaction-view {
+    height: auto;
+    min-height: 100%;
+    padding: 1rem;
+    gap: 1rem;
+    overflow: visible;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.625rem;
+  }
+
+  .summary-card--main {
+    grid-column: 1 / -1;
+  }
+
+  .summary-card {
+    gap: 0.625rem;
+    padding: 0.75rem 0.875rem;
+    min-width: 0;
+  }
+
+  .summary-card:not(.summary-card--main) .summary-card__icon {
+    display: none;
+  }
+
+  .summary-card__icon {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .summary-card__value {
+    font-size: 1.125rem;
+    overflow-wrap: anywhere;
+  }
+
+  .summary-card--main .summary-card__value {
+    font-size: 1.375rem;
+  }
 }
 </style>

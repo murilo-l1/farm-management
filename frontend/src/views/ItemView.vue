@@ -4,27 +4,19 @@
     <AppHeaderBar title="Inventário" subtitle="Gerencie os itens de insumos da sua propriedade" />
 
     <!-- Edit Drawer -->
-    <Drawer
+    <AppFormDrawer
       v-model:visible="drawerOpen"
-      position="right"
       :header="drawerHeader"
-      style="width: 36rem"
+      :show-skeleton="drawerLoading && !editInitialData"
     >
-      <div v-if="drawerLoading && !editInitialData" class="drawer-loading">
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="40%" />
-      </div>
       <ItemForm
-        v-else
         :initial-data="editInitialData"
         :loading="drawerLoading"
         :mode="drawerMode"
         @submit="handleSave"
         @cancel="drawerOpen = false"
       />
-    </Drawer>
+    </AppFormDrawer>
 
     <!-- Table -->
     <AppDataTable
@@ -38,7 +30,7 @@
       @delete="handleDelete"
     >
       <template #actions>
-        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined :disabled="loading" @click="tableRef.exportCSV()" />
+        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined :disabled="loading" class="hidden md:inline-flex" @click="tableRef.exportCSV()" />
         <AppButton icon="pi pi-plus" label="Novo Item" @click="handleAdd" />
       </template>
       <template #columns="{ loading }">
@@ -76,6 +68,26 @@
         </Column>
       </template>
 
+      <template #card="{ data, loading }">
+        <template v-if="loading">
+          <Skeleton height="1rem" width="60%" class="card-skeleton" />
+          <Skeleton height="0.875rem" width="40%" />
+        </template>
+        <template v-else>
+          <div class="card-row">
+            <span class="cell-name">{{ data.name }}</span>
+            <span
+              v-if="data.category_name"
+              class="category-badge"
+              :style="categoryBadgeStyle(data.category_id)"
+            >{{ data.category_name }}</span>
+          </div>
+          <p class="card-meta">
+            {{ [data.brand, data.unity].filter(Boolean).join(' · ') || 'Sem marca ou unidade' }}
+          </p>
+        </template>
+      </template>
+
       <template #empty>
         <div class="empty-state">
           <span class="material-symbols-outlined empty-icon">inventory_2</span>
@@ -90,10 +102,10 @@
 import { ref, computed, onMounted } from 'vue'
 import Column from 'primevue/column'
 import Skeleton from 'primevue/skeleton'
-import Drawer from 'primevue/drawer'
 import AppButton from '@/components/AppButton.vue'
 import AppHeaderBar from '@/components/AppHeaderBar.vue'
 import AppDataTable from '@/components/AppDataTable.vue'
+import AppFormDrawer from '@/components/AppFormDrawer.vue'
 import ItemForm from '@/form/ItemForm.vue'
 import { itemService } from '@/services/item.service'
 import { categoryService } from '@/services/category.service'
@@ -207,8 +219,20 @@ async function handleDelete(id: number) {
   white-space: nowrap;
 }
 
-.drawer-loading { padding: 1.5rem; display: flex; flex-direction: column; }
-.mb-3 { margin-bottom: 1rem; }
+.card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.card-meta {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+}
+
+.card-skeleton { margin-bottom: 0.5rem; }
 
 .empty-state {
   display: flex;
@@ -224,5 +248,15 @@ async function handleDelete(id: number) {
   font-size: 2.5rem;
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48;
   opacity: 0.5;
+}
+
+@media (max-width: 767px) {
+  .item-view {
+    height: auto;
+    min-height: 100%;
+    padding: 1rem;
+    gap: 1rem;
+    overflow: visible;
+  }
 }
 </style>

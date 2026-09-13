@@ -1,0 +1,19 @@
+@layer theme, base, primevue, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "tailwindcss-primeui";
+
+:root {
+  --app-topbar-height: 3.5rem;
+}
+
+/* com fonte menor que 16px o Safari dá zoom sozinho quando o campo ganha foco */
+@media (max-width: 767px) {
+  .p-inputtext,
+  .p-select-label,
+  .p-inputnumber-input,
+  .p-datepicker-input,
+  .p-password-input {
+    font-size: 16px;
+  }
+}

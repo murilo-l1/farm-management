@@ -80,7 +80,7 @@
       </div>
 
       <!-- Spacer -->
-      <div class="form-field" />
+      <div class="form-field form-spacer" />
 
       <!-- Safra -->
       <div class="form-field">
@@ -128,8 +128,9 @@
       <div class="form-field form-field--full">
         <div class="items-header">
           <label class="form-label">Itens</label>
-          <button type="button" class="add-item-btn" @click="addItem">
+          <button type="button" class="add-item-btn" aria-label="Adicionar item" @click="addItem">
             <span class="material-symbols-outlined">add</span>
+            <span class="add-item-label">Adicionar item</span>
           </button>
         </div>
 
@@ -151,13 +152,16 @@
               placeholder="Selecione..."
               @change="onItemSelect(fi)"
               fluid
+              class="item-select"
             />
             <span class="item-cell item-cell--unity">{{ fi.item_unity || '—' }}</span>
             <InputNumber
               v-model="fi.quantity"
               :min="1"
               :max-fraction-digits="0"
+              :placeholder="isMobile ? 'Qtd.' : undefined"
               fluid
+              class="item-qty"
             />
             <InputNumber
               v-model="fi.unit_price"
@@ -165,10 +169,12 @@
               currency="BRL"
               locale="pt-BR"
               :min="0"
+              :placeholder="isMobile ? 'Preço unit.' : undefined"
               fluid
+              class="item-price"
             />
             <span class="item-cell item-cell--total">{{ formatCurrency(itemTotal(fi)) }}</span>
-            <button type="button" class="remove-item-btn" @click="removeItem(idx)">
+            <button type="button" class="remove-item-btn" aria-label="Remover item" @click="removeItem(idx)">
               <span class="material-symbols-outlined">remove</span>
             </button>
           </div>
@@ -202,6 +208,7 @@ import InputNumber from 'primevue/inputnumber'
 import DatePicker from 'primevue/datepicker'
 import AppInput from '@/components/AppInput.vue'
 import AppButton from '@/components/AppButton.vue'
+import { useBreakpoint } from '@/composables/useBreakpoint'
 import { cropCycleService } from '@/services/crop-cycle.service'
 import { categoryService } from '@/services/category.service'
 import { stakeholderService } from '@/services/stakeholder.service'
@@ -236,6 +243,9 @@ const emit = defineEmits<{
   submit: [payload: TransactionPayload]
   cancel: []
 }>()
+
+// no celular os itens não têm cabeçalho, então o placeholder indica o campo
+const { isMobile } = useBreakpoint()
 
 const cropCycleOptions  = ref<CropCycleOption[]>([])
 const categoryOptions   = ref<CategoryDto[]>([])
@@ -463,13 +473,12 @@ function handleSubmit() {
   transition: background 0.15s, color 0.15s;
 }
 
-.add-item-btn:hover {
-  background: #0d631b;
-  color: #fff;
-}
-
 .add-item-btn .material-symbols-outlined {
   font-size: 1rem;
+}
+
+.add-item-label {
+  display: none;
 }
 
 .items-grid {
@@ -530,13 +539,20 @@ function handleSubmit() {
   transition: background 0.15s, color 0.15s;
 }
 
-.remove-item-btn:hover {
-  background: #c62828;
-  color: #fff;
-}
-
 .remove-item-btn .material-symbols-outlined {
   font-size: 1rem;
+}
+
+@media (hover: hover) {
+  .add-item-btn:hover {
+    background: #0d631b;
+    color: #fff;
+  }
+
+  .remove-item-btn:hover {
+    background: #c62828;
+    color: #fff;
+  }
 }
 
 .items-empty {
@@ -554,5 +570,86 @@ function handleSubmit() {
   padding: 1rem 1.5rem;
   border-top: 1px solid #bfcaba;
   flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    align-content: start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .form-spacer {
+    display: none;
+  }
+
+  .form-footer {
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  }
+
+  .form-footer :deep(.p-button) {
+    flex: 1;
+    min-height: 2.75rem;
+  }
+
+  .items-header {
+    justify-content: space-between;
+  }
+
+  .add-item-btn {
+    width: auto;
+    height: 2.5rem;
+    gap: 0.25rem;
+    padding: 0 0.875rem 0 0.625rem;
+    border-radius: 2rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .add-item-btn .material-symbols-outlined {
+    font-size: 1.125rem;
+  }
+
+  .add-item-label {
+    display: inline;
+  }
+
+  .items-grid--head {
+    display: none;
+  }
+
+  .items-grid--row {
+    grid-template-columns: 1fr 1fr auto;
+    grid-template-areas:
+      'item  item  item'
+      'qty   price price'
+      'unity total remove';
+    gap: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid #dde8d8;
+    border-radius: 0.75rem;
+  }
+
+  .item-select   { grid-area: item; }
+  .item-qty      { grid-area: qty; }
+  .item-price    { grid-area: price; }
+  .item-cell--unity { grid-area: unity; }
+  .item-cell--total { grid-area: total; text-align: right; }
+  .remove-item-btn  { grid-area: remove; }
+
+  .item-cell--unity::before { content: 'Unid.: '; }
+  .item-cell--total::before { content: 'Total: '; font-weight: 500; color: #6b7c6e; }
+
+  .remove-item-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .remove-item-btn .material-symbols-outlined {
+    font-size: 1.25rem;
+  }
 }
 </style>

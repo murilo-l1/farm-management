@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useLayout } from '@/composables/useLayout'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -46,5 +47,7 @@ router.beforeEach((to) => {
   if (requiresAuth && !auth.isAuthenticated) return '/login'
   if (requiresGuest && auth.isAuthenticated) return '/dashboard'
 })
+
+router.afterEach(() => useLayout().closeMenu())
 
 export default router

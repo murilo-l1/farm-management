@@ -68,7 +68,7 @@
       </div>
 
       <!-- Spacer -->
-      <div class="form-field" />
+      <div class="form-field form-spacer" />
 
       <!-- Orçamento Planejado -->
       <div class="form-field">
@@ -309,5 +309,27 @@ function handleSubmit() {
   padding: 1rem 1.5rem;
   border-top: 1px solid #bfcaba;
   flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    align-content: start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .form-spacer {
+    display: none;
+  }
+
+  .form-footer {
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  }
+
+  .form-footer :deep(.p-button) {
+    flex: 1;
+    min-height: 2.75rem;
+  }
 }
 </style>

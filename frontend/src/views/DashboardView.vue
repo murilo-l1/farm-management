@@ -725,4 +725,51 @@ onMounted(() => {
 }
 
 .line-chart { height: 22rem; }
+
+@media (max-width: 1023px) {
+  .chart-card--pie {
+    width: 100%;
+  }
+
+  .chart-card--bar {
+    min-width: 0;
+    flex-basis: 100%;
+  }
+
+  /* fora da linha flex o card não estica e o gráfico ficaria com altura 0 */
+  .pie-chart { height: 20rem; }
+}
+
+@media (max-width: 767px) {
+  .dashboard-view {
+    height: auto;
+    min-height: 100%;
+    padding: 1rem;
+    gap: 1rem;
+    overflow: visible;
+  }
+
+  .charts-grid { gap: 1rem; }
+
+  .chart-card {
+    padding: 1rem;
+    gap: 1rem;
+    min-width: 0;
+  }
+
+  .chart-card__header { flex-wrap: wrap; }
+
+  .bar-mode-switch { width: 100%; }
+
+  .mode-btn {
+    flex: 1;
+    min-height: 2.5rem;
+  }
+
+  .pie-chart  { height: 18rem; }
+  .bar-chart  { height: 16rem; }
+  .line-chart { height: 16rem; }
+
+  .legend-dialog { white-space: normal; width: min(16rem, 80vw); }
+}
 </style>

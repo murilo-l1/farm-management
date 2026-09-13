@@ -5,6 +5,7 @@
     :draggable="false"
     header="Meu Perfil"
     :style="{ width: '28rem' }"
+    :breakpoints="{ '575px': '92vw' }"
     class="profile-dialog"
   >
     <div class="dialog-body">

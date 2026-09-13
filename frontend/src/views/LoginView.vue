@@ -269,7 +269,7 @@ function resetForm() {
 }
 
 .login-page {
-  height: 100vh;
+  height: 100dvh;
   overflow-y: auto;
   background-color: #0a0f0a;
   display: flex;
@@ -317,7 +317,7 @@ function resetForm() {
   align-items: center;
   text-align: center;
   gap: 1.5rem;
-  max-height: calc(100vh - 3rem);
+  max-height: calc(100dvh - 3rem);
   overflow-y: auto;
 }
 @media (min-width: 768px) {

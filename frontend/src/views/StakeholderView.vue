@@ -4,27 +4,19 @@
     <AppHeaderBar title="Parceiros" subtitle="Gerencie fornecedores e compradores da sua propriedade" />
 
     <!-- Edit Drawer -->
-    <Drawer
+    <AppFormDrawer
       v-model:visible="drawerOpen"
-      position="right"
       :header="drawerHeader"
-      style="width: 36rem"
+      :show-skeleton="drawerLoading && !editInitialData"
     >
-      <div v-if="drawerLoading && !editInitialData" class="drawer-loading">
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="40%" />
-      </div>
       <StakeholderForm
-        v-else
         :initial-data="editInitialData"
         :loading="drawerLoading"
         :mode="drawerMode"
         @submit="handleSave"
         @cancel="drawerOpen = false"
       />
-    </Drawer>
+    </AppFormDrawer>
 
     <!-- Table -->
     <AppDataTable
@@ -38,7 +30,7 @@
       @delete="handleDelete"
     >
       <template #actions>
-        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined :disabled="loading" @click="tableRef.exportCSV()" />
+        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined :disabled="loading" class="hidden md:inline-flex" @click="tableRef.exportCSV()" />
         <AppButton icon="pi pi-plus" label="Novo Parceiro" @click="handleAdd" />
       </template>
       <template #columns="{ loading }">
@@ -78,6 +70,31 @@
         </Column>
       </template>
 
+      <template #card="{ data, loading }">
+        <template v-if="loading">
+          <Skeleton height="1rem" width="60%" class="card-skeleton" />
+          <Skeleton height="0.875rem" width="45%" />
+        </template>
+        <template v-else>
+          <div class="card-row">
+            <span class="cell-name">{{ data.name }}</span>
+            <span v-if="data.type" class="type-chip">{{ typeLabel(data.type) }}</span>
+          </div>
+          <p v-if="data.cpf || data.cnpj" class="card-meta">
+            {{ data.cnpj ? `CNPJ ${formatCnpj(data.cnpj)}` : `CPF ${formatCpf(data.cpf)}` }}
+          </p>
+          <a
+            v-if="data.phone"
+            :href="`tel:${data.phone}`"
+            class="card-phone"
+            @click.stop
+          >
+            <span class="material-symbols-outlined">call</span>
+            {{ formatPhone(data.phone) }}
+          </a>
+        </template>
+      </template>
+
       <template #empty>
         <div class="empty-state">
           <span class="material-symbols-outlined empty-icon">handshake</span>
@@ -92,10 +109,10 @@
 import { ref, computed, onMounted } from 'vue'
 import Column from 'primevue/column'
 import Skeleton from 'primevue/skeleton'
-import Drawer from 'primevue/drawer'
 import AppButton from '@/components/AppButton.vue'
 import AppHeaderBar from '@/components/AppHeaderBar.vue'
 import AppDataTable from '@/components/AppDataTable.vue'
+import AppFormDrawer from '@/components/AppFormDrawer.vue'
 import StakeholderForm from '@/form/StakeholderForm.vue'
 import { stakeholderService } from '@/services/stakeholder.service'
 import { toast } from '@/services/toast'
@@ -199,8 +216,44 @@ async function handleDelete(id: number) {
 .cell-name  { font-weight: 600; color: var(--on-surface); }
 .cell-empty { color: var(--on-surface-variant); }
 
-.drawer-loading { padding: 1.5rem; display: flex; flex-direction: column; }
-.mb-3 { margin-bottom: 1rem; }
+.card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.type-chip {
+  padding: 0.125rem 0.625rem;
+  border-radius: 2rem;
+  background: #eef1eb;
+  color: var(--on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.card-meta {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+}
+
+.card-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2rem;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.card-phone .material-symbols-outlined { font-size: 1rem; }
+
+.card-skeleton { margin-bottom: 0.5rem; }
 
 .empty-state {
   display: flex;
@@ -216,5 +269,15 @@ async function handleDelete(id: number) {
   font-size: 2.5rem;
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48;
   opacity: 0.5;
+}
+
+@media (max-width: 767px) {
+  .stakeholder-view {
+    height: auto;
+    min-height: 100%;
+    padding: 1rem;
+    gap: 1rem;
+    overflow: visible;
+  }
 }
 </style>

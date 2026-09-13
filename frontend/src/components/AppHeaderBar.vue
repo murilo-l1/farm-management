@@ -4,7 +4,7 @@
       <h1>{{ title }}</h1>
       <p v-if="subtitle" class="header-sub">{{ subtitle }}</p>
     </div>
-    <AppUserWidget />
+    <AppUserWidget class="hidden lg:block" />
   </div>
 </template>
 
@@ -43,4 +43,13 @@ defineProps<{
   margin: 0.25rem 0 0;
 }
 
+@media (max-width: 767px) {
+  .header-title h1 {
+    font-size: 1.25rem;
+  }
+
+  .header-sub {
+    font-size: 0.75rem;
+  }
+}
 </style>

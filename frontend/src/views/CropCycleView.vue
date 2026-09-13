@@ -5,7 +5,7 @@
 
     <!-- Summary cards -->
     <div class="summary-grid">
-      <div class="summary-card">
+      <div class="summary-card summary-card--main">
         <div class="summary-card__icon summary-card__icon--active">
           <span class="material-symbols-outlined">potted_plant</span>
         </div>
@@ -44,28 +44,21 @@
     </div>
 
     <!-- Edit Drawer -->
-    <Drawer
+    <AppFormDrawer
       v-model:visible="drawerOpen"
-      position="right"
       :header="drawerHeader"
-      style="width: 38rem"
+      :show-skeleton="drawerLoading && !editInitialData"
+      :skeleton-rows="5"
+      desktop-width="38rem"
     >
-      <div v-if="drawerLoading && !editInitialData" class="drawer-loading">
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="60%" class="mb-3" />
-        <Skeleton height="1.5rem" width="40%" />
-      </div>
       <CropCycleForm
-        v-else
         :initial-data="editInitialData"
         :loading="drawerLoading"
         :mode="drawerMode"
         @submit="handleSave"
         @cancel="drawerOpen = false"
       />
-    </Drawer>
+    </AppFormDrawer>
 
     <!-- Table -->
     <AppDataTable
@@ -74,12 +67,13 @@
       :value="cropCycles"
       :loading="loading"
       :global-filter-fields="['name', 'crop']"
+      :active-filter-count="activeFilterCount"
       search-placeholder="Buscar por safra ou cultura"
       @edit="handleEdit"
       @delete="handleDelete"
     >
       <template #actions>
-        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined :disabled="loading" @click="tableRef.exportCSV()" />
+        <AppButton icon="pi pi-external-link" label="Exportar CSV" severity="secondary" outlined :disabled="loading" class="hidden md:inline-flex" @click="tableRef.exportCSV()" />
         <AppButton icon="pi pi-plus" label="Nova Safra" @click="handleAdd" />
       </template>
       <template #filters>
@@ -164,6 +158,50 @@
         </Column>
       </template>
 
+      <template #card="{ data, loading }">
+        <template v-if="loading">
+          <div class="card-row">
+            <Skeleton height="1rem" width="50%" />
+            <Skeleton height="1.5rem" width="25%" border-radius="2rem" />
+          </div>
+          <Skeleton height="0.875rem" width="40%" class="card-skeleton" />
+          <Skeleton height="0.5rem" width="100%" />
+        </template>
+        <template v-else>
+          <div class="card-row">
+            <span class="cell-name">{{ data.name }}</span>
+            <span class="status-badge" :style="statusStyle(data.status)">{{ statusLabel(data.status) }}</span>
+          </div>
+          <p class="card-meta">
+            {{ [data.crop, formatArea(data.planted_area || data.plant_count, data.measurement_unit)].filter((v) => v && v !== '—').join(' · ') }}
+          </p>
+
+          <div class="progress-cell card-progress">
+            <div class="card-row">
+              <span class="card-label">Progresso</span>
+              <span class="progress-label">{{ data.progress_percentage ?? 0 }}%</span>
+            </div>
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                :style="{ width: `${Math.min(data.progress_percentage ?? 0, 100)}%` }"
+              />
+            </div>
+          </div>
+
+          <dl class="card-figures">
+            <div>
+              <dt class="card-label">Orçamento</dt>
+              <dd>{{ formatCurrency(data.planned_budget) }}</dd>
+            </div>
+            <div>
+              <dt class="card-label">Ganho esperado</dt>
+              <dd>{{ formatCurrency(data.target_yield) }}</dd>
+            </div>
+          </dl>
+        </template>
+      </template>
+
       <template #empty>
         <div class="empty-state">
           <span class="material-symbols-outlined empty-icon">potted_plant</span>
@@ -180,10 +218,10 @@ import Column from 'primevue/column'
 import Skeleton from 'primevue/skeleton'
 import Select from 'primevue/select'
 import DatePicker from 'primevue/datepicker'
-import Drawer from 'primevue/drawer'
 import AppButton from '@/components/AppButton.vue'
 import AppHeaderBar from '@/components/AppHeaderBar.vue'
 import AppDataTable from '@/components/AppDataTable.vue'
+import AppFormDrawer from '@/components/AppFormDrawer.vue'
 import { cropCycleService } from '@/services/crop-cycle.service'
 import { toast } from '@/services/toast'
 import CropCycleForm from '@/form/CropCycleForm.vue'
@@ -196,6 +234,10 @@ const summary = ref<CropCycleSummary | null>(null)
 
 const filterStatus = ref<CropCycleStatus | null>(null)
 const filterDate = ref<Date | null>(null)
+
+const activeFilterCount = computed(() =>
+  [filterStatus.value, filterDate.value].filter((f) => f != null).length
+)
 
 const drawerOpen = ref(false)
 const drawerLoading = ref(false)
@@ -433,8 +475,45 @@ async function handleDelete(id: number) {
 
 .cell-name { font-weight: 600; color: var(--on-surface); }
 
-.drawer-loading { padding: 1.5rem; display: flex; flex-direction: column; }
-.mb-3 { margin-bottom: 1rem; }
+.card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.card-meta {
+  margin: 0.25rem 0 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+}
+
+.card-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-progress { margin-bottom: 0.75rem; }
+
+.card-figures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.card-figures dd {
+  margin: 0.125rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
+}
+
+.card-skeleton { margin: 0.5rem 0 0.75rem; }
 
 .empty-state {
   display: flex;
@@ -450,5 +529,47 @@ async function handleDelete(id: number) {
   font-size: 2.5rem;
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48;
   opacity: 0.5;
+}
+
+@media (max-width: 767px) {
+  .crop-cycle-view {
+    height: auto;
+    min-height: 100%;
+    padding: 1rem;
+    gap: 1rem;
+    overflow: visible;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.625rem;
+  }
+
+  .summary-card--main {
+    grid-column: 1 / -1;
+  }
+
+  .summary-card {
+    gap: 0.625rem;
+    padding: 0.75rem 0.875rem;
+    min-width: 0;
+  }
+
+  .summary-card:not(.summary-card--main) .summary-card__icon {
+    display: none;
+  }
+
+  .summary-card__icon {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .summary-card__label {
+    white-space: normal;
+  }
+
+  .summary-card__value {
+    font-size: 1.25rem;
+  }
 }
 </style>
