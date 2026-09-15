@@ -15,6 +15,8 @@ public interface CategoryService {
 
     Category create(@NonNull final Integer userId, @NonNull final CategoryPayload payload);
 
+    void createDefaults(@NonNull final Integer userId);
+
     Category update(@NonNull final Integer id, @NonNull final CategoryPayload payload);
 
     void delete(@NonNull final Integer id);

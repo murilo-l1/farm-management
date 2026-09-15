@@ -54,10 +54,28 @@ CREATE TABLE farm_user
 INSERT INTO farm_user (name, phone, email, password, created_at, updated_at)
 VALUES ('admin', '35991179667', 'admin@email.com', '$2a$12$YBOWEel6M/lO2SiPIs5zAO6KWOT3db5s4puX1ZbeCD5q90/8kGaIS', now(), now());
 
+-- Template copiado para cada usuário no registro (UserAuthImpl.register)
+CREATE TABLE default_category
+(
+    id    int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name  text       NOT NULL CHECK (name <> ''),
+    color varchar(7) NULL CHECK (color IS NULL OR color ~ '^#[0-9A-Fa-f]{6}$')
+);
+
+INSERT INTO default_category (name, color)
+VALUES ('Sementes e Mudas', '#2e7d32'),
+       ('Fertilizantes', '#1565c0'),
+       ('Defensivos', '#c62828'),
+       ('Combustível', '#f9a825'),
+       ('Mão de Obra', '#6d4c41'),
+       ('Manutenção', '#6a1b9a'),
+       ('Embalagem', '#00838f'),
+       ('Vendas', '#43a047');
+
 CREATE TABLE category
 (
     id         integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id    integer REFERENCES farm_user (id),
+    user_id    integer     NOT NULL REFERENCES farm_user (id),
     name       text        NOT NULL CHECK (name <> ''),
     color      varchar(7)  NULL CHECK (color IS NULL OR color ~ '^#[0-9A-Fa-f]{6}$'),
     created_at timestamp,
@@ -131,7 +149,7 @@ CREATE TABLE transaction
     user_id          integer REFERENCES farm_user (id),
     crop_cycle_id    integer REFERENCES crop_cycle (id),
     stakeholder_id   integer NULL REFERENCES stakeholder (id),
-    category_id      integer,
+    category_id      integer NULL REFERENCES category (id),
     type             transaction_type NOT NULL,
     description      text,
     total_value      numeric(15, 2),

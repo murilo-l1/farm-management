@@ -60,6 +60,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 
     long countByCropCycleId(Integer cropCycleId);
 
+    long countByCategoryId(Integer categoryId);
+
     List<Transaction> findByCropCycleIdAndType(Integer cropCycleId, TransactionType type);
 
     @Query("SELECT COALESCE(SUM(t.totalValue), 0) FROM Transaction t WHERE t.cropCycleId = :cropCycleId AND t.type = :type")

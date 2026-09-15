@@ -30,6 +30,9 @@ public final class ErrorMessage {
     public static String categoryHasItems(long count) {
         return String.format("Esta categoria possui %d item(ns) e não pode ser excluída. Exclua os itens ou remova sua categoria para continuar.", count);
     }
+    public static String categoryHasTransactions(long count) {
+        return String.format("Esta categoria possui %d transação(ões) associada(s) e não pode ser excluída. Altere a categoria das transações para continuar.", count);
+    }
 
     // Item
     public static final String ITEM_NOT_FOUND = "Item não encontrado";

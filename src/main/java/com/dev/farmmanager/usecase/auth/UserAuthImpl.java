@@ -10,6 +10,7 @@ import com.dev.farmmanager.exception.handler.UsernameNotAllowedException;
 import com.dev.farmmanager.mapper.UserMapper;
 import com.dev.farmmanager.security.CookieHandler;
 import com.dev.farmmanager.service.auth.AuthService;
+import com.dev.farmmanager.service.category.CategoryService;
 import com.dev.farmmanager.service.user.UserService;
 
 import lombok.NonNull;
@@ -29,12 +30,14 @@ public class UserAuthImpl implements UserAuth {
     private Long expiresIn;
 
     private final UserService userService;
+    private final CategoryService categoryService;
     private final AuthService authService;
     private final UserMapper userMapper;
     private final CookieHandler cookieHandler;
 
-    public UserAuthImpl(UserService userService, AuthService authService, UserMapper userMapper, CookieHandler cookieHandler) {
+    public UserAuthImpl(UserService userService, CategoryService categoryService, AuthService authService, UserMapper userMapper, CookieHandler cookieHandler) {
         this.userService = userService;
+        this.categoryService = categoryService;
         this.authService = authService;
         this.userMapper = userMapper;
         this.cookieHandler = cookieHandler;
@@ -65,7 +68,8 @@ public class UserAuthImpl implements UserAuth {
         }
 
         User user = userMapper.toEntity(payload);
-        userService.create(user);
+        User created = userService.create(user);
+        categoryService.createDefaults(created.getId());
 
         final String token = authService.register(payload);
 
